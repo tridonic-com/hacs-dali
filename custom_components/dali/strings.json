@@ -1,0 +1,386 @@
+{
+  "config": {
+    "abort": {
+      "already_configured": "[%key:common::config_flow::abort::already_configured_device%]",
+      "no_serial_ports": "No serial ports were found. Connect the Lunatone USB-DALI2 interface, then try again."
+    },
+    "error": {
+      "cannot_connect": "[%key:common::config_flow::error::cannot_connect%]"
+    },
+    "step": {
+      "bus_power": {
+        "data": {
+          "bus_power": "Provide DALI bus power"
+        },
+        "data_description": {
+          "bus_power": "The interface can power the DALI bus itself. Enable this only when no separate DALI power supply is connected, otherwise leave it off to avoid two power supplies on the bus."
+        },
+        "description": "This interface has an integrated DALI bus power supply. Switch it on to power the bus?",
+        "title": "DALI bus power"
+      },
+      "usb_confirm": {
+        "title": "USB-DALI2 interface"
+      },
+      "user": {
+        "data": {
+          "device": "Serial port"
+        },
+        "data_description": {
+          "device": "The serial port that the Lunatone USB-DALI2 interface is connected to."
+        },
+        "description": "Select the serial port that the Lunatone USB-DALI2 interface is connected to.",
+        "title": "USB-DALI2 interface"
+      }
+    }
+  },
+  "entity": {
+    "binary_sensor": {
+      "battery_duration_failure": {
+        "name": "Battery duration failure"
+      },
+      "battery_failure": {
+        "name": "Battery failure"
+      },
+      "battery_fully_charged": {
+        "name": "Battery fully charged"
+      },
+      "circuit_failure": {
+        "name": "Circuit failure"
+      },
+      "duration_test_done": {
+        "name": "Duration test done"
+      },
+      "duration_test_failed": {
+        "name": "Duration test failed"
+      },
+      "duration_test_max_delay_exceeded": {
+        "name": "Duration test max delay exceeded"
+      },
+      "duration_test_pending": {
+        "name": "Duration test pending"
+      },
+      "emergency_lamp_failure": {
+        "name": "Emergency lamp failure"
+      },
+      "function_test_done": {
+        "name": "Function test done"
+      },
+      "function_test_failed": {
+        "name": "Function test failed"
+      },
+      "function_test_max_delay_exceeded": {
+        "name": "Function test max delay exceeded"
+      },
+      "function_test_pending": {
+        "name": "Function test pending"
+      },
+      "hardwired_inhibit_active": {
+        "name": "Hardwired inhibit active"
+      },
+      "hardwired_switch_on": {
+        "name": "Hardwired switch on"
+      },
+      "identification_active": {
+        "name": "Identification active"
+      },
+      "inhibit_mode": {
+        "name": "Inhibit mode"
+      }
+    },
+    "button": {
+      "inhibit": {
+        "name": "Inhibit"
+      },
+      "relight_reset_inhibit": {
+        "name": "Re-light / reset inhibit"
+      },
+      "reset_duration_test_done_flag": {
+        "name": "Reset duration test done flag"
+      },
+      "reset_function_test_done_flag": {
+        "name": "Reset function test done flag"
+      },
+      "reset_lamp_time": {
+        "name": "Reset lamp time"
+      },
+      "rest": {
+        "name": "Rest"
+      },
+      "search_devices": {
+        "name": "Search for devices"
+      },
+      "start_duration_test": {
+        "name": "Start duration test"
+      },
+      "start_function_test": {
+        "name": "Start function test"
+      },
+      "start_identification": {
+        "name": "Start identification"
+      },
+      "stop_test": {
+        "name": "Stop test"
+      }
+    },
+    "event": {
+      "pushbutton": {
+        "name": "Push button {instance}",
+        "state_attributes": {
+          "event_type": {
+            "state": {
+              "button_free": "Button free",
+              "button_pressed": "Button pressed",
+              "button_released": "Button released",
+              "button_stuck": "Button stuck",
+              "double_press": "Double press",
+              "long_press_repeat": "Long press repeat",
+              "long_press_start": "Long press start",
+              "long_press_stop": "Long press stop",
+              "short_press": "Short press"
+            }
+          }
+        }
+      }
+    },
+    "number": {
+      "extended_fade_time": {
+        "name": "Extended fade time"
+      },
+      "max_level": {
+        "name": "Maximum level"
+      },
+      "min_level": {
+        "name": "Minimum level"
+      },
+      "system_failure_level": {
+        "name": "System failure level"
+      }
+    },
+    "select": {
+      "fade_rate": {
+        "name": "Fade rate",
+        "state": {
+          "2_8_steps_s": "2.8 steps/s",
+          "4_0_steps_s": "4.0 steps/s",
+          "5_6_steps_s": "5.6 steps/s",
+          "7_9_steps_s": "7.9 steps/s",
+          "11_2_steps_s": "11.2 steps/s",
+          "15_8_steps_s": "15.8 steps/s",
+          "22_4_steps_s": "22.4 steps/s",
+          "31_6_steps_s": "31.6 steps/s",
+          "44_7_steps_s": "44.7 steps/s",
+          "63_3_steps_s": "63.3 steps/s",
+          "89_4_steps_s": "89.4 steps/s",
+          "126_5_steps_s": "126.5 steps/s",
+          "178_9_steps_s": "178.9 steps/s",
+          "253_0_steps_s": "253.0 steps/s",
+          "357_8_steps_s": "357.8 steps/s"
+        }
+      },
+      "fade_time": {
+        "name": "Fade time",
+        "state": {
+          "0_7_s": "0.7 seconds",
+          "1_0_s": "1.0 seconds",
+          "1_4_s": "1.4 seconds",
+          "2_0_s": "2.0 seconds",
+          "2_8_s": "2.8 seconds",
+          "4_0_s": "4.0 seconds",
+          "5_7_s": "5.7 seconds",
+          "8_0_s": "8.0 seconds",
+          "11_3_s": "11.3 seconds",
+          "16_0_s": "16.0 seconds",
+          "22_6_s": "22.6 seconds",
+          "32_0_s": "32.0 seconds",
+          "45_3_s": "45.3 seconds",
+          "64_0_s": "64.0 seconds",
+          "90_5_s": "90.5 seconds",
+          "extended": "Use extended fade time"
+        }
+      }
+    },
+    "sensor": {
+      "air_quality_index": {
+        "name": "[%key:component::sensor::entity_component::aqi::name%]"
+      },
+      "average_power_during_charging": {
+        "name": "Average power during charging"
+      },
+      "average_power_during_maintenance": {
+        "name": "Average power during maintenance"
+      },
+      "batch_number": {
+        "name": "Batch number"
+      },
+      "battery_connected_time_total": {
+        "name": "Battery connected time"
+      },
+      "battery_failure_counter": {
+        "name": "Battery failure counter"
+      },
+      "battery_recharge_time": {
+        "name": "Battery recharge time"
+      },
+      "co2": {
+        "name": "[%key:component::sensor::entity_component::carbon_dioxide::name%]"
+      },
+      "control_gear_max_reference_temperature": {
+        "name": "Control gear maximum reference temperature"
+      },
+      "control_gear_temperature": {
+        "name": "Control gear temperature"
+      },
+      "duration_test_failed_counter_total": {
+        "name": "Duration test failed counter"
+      },
+      "duration_test_result": {
+        "name": "Duration test result"
+      },
+      "emergency_level": {
+        "name": "Emergency level"
+      },
+      "emergency_mode": {
+        "name": "Emergency mode",
+        "state": {
+          "duration_test": "Duration test",
+          "emergency": "Emergency",
+          "extended_emergency": "Extended emergency",
+          "function_test": "Function test",
+          "inhibit": "Inhibit",
+          "normal": "Normal",
+          "rest": "Rest"
+        }
+      },
+      "emergency_mode_counter_total": {
+        "name": "Emergency mode counter"
+      },
+      "function_test_failed_counter_total": {
+        "name": "Function test failed counter"
+      },
+      "function_test_time": {
+        "name": "Function test time"
+      },
+      "identification_number": {
+        "name": "Identification number"
+      },
+      "illuminance": {
+        "name": "Illuminance"
+      },
+      "lamp_emergency_time": {
+        "name": "Lamp emergency time"
+      },
+      "lamp_emergency_time_current_battery": {
+        "name": "Lamp emergency time (current battery)"
+      },
+      "lamp_emergency_time_total": {
+        "name": "Lamp emergency time (total)"
+      },
+      "lamp_total_operation_time": {
+        "name": "Lamp total operation time"
+      },
+      "max_control_gear_temperature_total": {
+        "name": "Maximum control gear temperature"
+      },
+      "min_control_gear_temperature_total": {
+        "name": "Minimum control gear temperature"
+      },
+      "part306_sensor": {
+        "name": "Measurement"
+      },
+      "pressure": {
+        "name": "[%key:component::sensor::entity_component::atmospheric_pressure::name%]"
+      },
+      "rated_duration": {
+        "name": "Rated duration"
+      },
+      "relative_humidity": {
+        "name": "[%key:component::sensor::entity_component::humidity::name%]"
+      },
+      "rest_mode_counter": {
+        "name": "Rest mode counter"
+      },
+      "sound_pressure": {
+        "name": "[%key:component::sensor::entity_component::sound_pressure::name%]"
+      },
+      "start_duration_test_counter_total": {
+        "name": "Duration test start counter"
+      },
+      "start_function_test_counter": {
+        "name": "Function test start counter"
+      },
+      "temperature": {
+        "name": "[%key:component::sensor::entity_component::temperature::name%]"
+      },
+      "voc": {
+        "name": "Volatile organic compounds"
+      }
+    }
+  },
+  "exceptions": {
+    "cannot_connect": {
+      "message": "Unable to connect to the DALI interface"
+    },
+    "communication_error": {
+      "message": "Unable to communicate with the DALI gear"
+    },
+    "update_failed": {
+      "message": "Unable to communicate with the DALI interface"
+    }
+  },
+  "issues": {
+    "bus_voltage_error": {
+      "fix_flow": {
+        "step": {
+          "confirm": {
+            "description": "The DALI bus on {title} has no power, so Home Assistant cannot reach any devices. This interface has an integrated power supply that can power the bus.\n\nSelect **Switch on bus power**, but only when no separate DALI power supply is connected, otherwise leave it off to avoid two power supplies on the bus.",
+            "submit": "Switch on bus power",
+            "title": "Power the DALI bus"
+          }
+        }
+      },
+      "title": "No power on the DALI bus on {title}"
+    },
+    "unaddressed_controldevice": {
+      "fix_flow": {
+        "abort": {
+          "cannot_connect": "[%key:common::config_flow::error::cannot_connect%]",
+          "not_loaded": "[%key:component::dali::issues::unaddressed_gear::fix_flow::abort::not_loaded%]",
+          "program_failed": "[%key:component::dali::issues::unaddressed_gear::fix_flow::abort::program_failed%]",
+          "unaddressed_remaining": "[%key:component::dali::issues::unaddressed_gear::fix_flow::abort::unaddressed_remaining%]"
+        },
+        "progress": {
+          "assign": "[%key:component::dali::issues::unaddressed_gear::fix_flow::progress::assign%]"
+        },
+        "step": {
+          "confirm": {
+            "description": "Home Assistant found a DALI control device (such as a sensor or push button) on {title} that has no short address. Without a short address, these devices are not enumerated and do not appear in Home Assistant.\n\nSelect **Assign addresses** to assign free short addresses to these devices. Devices that already have a short address keep it.\n\nIf another DALI controller manages this bus, assign addresses with that controller instead to avoid conflicts.\n\nAfter the addresses are assigned, the new devices appear in Home Assistant automatically.",
+            "submit": "Assign addresses",
+            "title": "Assign DALI short addresses"
+          }
+        }
+      },
+      "title": "DALI control devices without a short address on {title}"
+    },
+    "unaddressed_gear": {
+      "fix_flow": {
+        "abort": {
+          "cannot_connect": "[%key:common::config_flow::error::cannot_connect%]",
+          "not_loaded": "The DALI interface {title} is not loaded. Enable or reload the integration entry, then try again.",
+          "program_failed": "A device did not accept its new short address. Check the DALI bus wiring and power, then try again.",
+          "unaddressed_remaining": "Some devices are still without a short address. All 64 short addresses on this DALI bus may be in use. Remove unused devices from the bus, then try again."
+        },
+        "progress": {
+          "assign": "Searching the DALI bus and assigning short addresses. This can take a few minutes, depending on how many devices are connected."
+        },
+        "step": {
+          "confirm": {
+            "description": "Home Assistant found DALI control gear on {title} that has no short address. Without a short address, these lights cannot be controlled individually and do not appear in Home Assistant.\n\nSelect **Assign addresses** to assign free short addresses to these devices. Devices that already have a short address keep it.\n\nIf another DALI controller manages this bus, assign addresses with that controller instead to avoid conflicts.\n\nAfter the addresses are assigned, the new lights appear in Home Assistant automatically.",
+            "submit": "Assign addresses",
+            "title": "Assign DALI short addresses"
+          }
+        }
+      },
+      "title": "DALI devices without a short address on {title}"
+    }
+  }
+}

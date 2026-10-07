@@ -1,0 +1,26 @@
+{
+  "domain": "dali",
+  "name": "Tridonic DALI",
+  "version": "0.1.0",
+  "codeowners": [
+    "@markus-becker-tridonic-com"
+  ],
+  "config_flow": true,
+  "dependencies": [
+    "usb"
+  ],
+  "documentation": "https://www.home-assistant.io/integrations/dali",
+  "integration_type": "hub",
+  "iot_class": "local_polling",
+  "quality_scale": "gold",
+  "requirements": [
+    "python-dali @ git+https://github.com/tridonic-com/python-dali@63810e867a0d4604072f7f95028404a275a622ff",
+    "serialx==1.10.0"
+  ],
+  "usb": [
+    {
+      "pid": "0201",
+      "vid": "17B5"
+    }
+  ]
+}
