@@ -1,3 +1,5 @@
+<img src="icon.png" alt="Tridonic DALI" width="128" align="right" />
+
 # Tridonic DALI — HACS test distribution
 
 Pre-release distribution of the **Tridonic DALI** Home Assistant integration for
