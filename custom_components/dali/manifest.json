@@ -1,7 +1,7 @@
 {
   "domain": "dali",
   "name": "Tridonic DALI",
-  "version": "0.1.0",
+  "version": "0.1.2",
   "codeowners": [
     "@markus-becker-tridonic-com"
   ],
@@ -15,7 +15,7 @@
   "quality_scale": "gold",
   "requirements": [
     "python-dali @ git+https://github.com/tridonic-com/python-dali@63810e867a0d4604072f7f95028404a275a622ff",
-    "serialx==1.10.0"
+    "serialx==1.11.0"
   ],
   "usb": [
     {
