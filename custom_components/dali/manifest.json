@@ -1,7 +1,7 @@
 {
   "domain": "dali",
   "name": "Tridonic DALI",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "codeowners": [
     "@markus-becker-tridonic-com"
   ],
