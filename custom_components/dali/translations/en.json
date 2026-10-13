@@ -47,6 +47,24 @@
             "circuit_failure": {
                 "name": "Circuit failure"
             },
+            "control_gear_output_power_limitation": {
+                "name": "Control gear output power limitation"
+            },
+            "control_gear_overall_failure": {
+                "name": "Control gear failure"
+            },
+            "control_gear_overvoltage": {
+                "name": "Control gear supply overvoltage"
+            },
+            "control_gear_thermal_derating": {
+                "name": "Control gear thermal derating"
+            },
+            "control_gear_thermal_shutdown": {
+                "name": "Control gear thermal shutdown"
+            },
+            "control_gear_undervoltage": {
+                "name": "Control gear supply undervoltage"
+            },
             "duration_test_done": {
                 "name": "Duration test done"
             },
@@ -85,6 +103,21 @@
             },
             "inhibit_mode": {
                 "name": "Inhibit mode"
+            },
+            "light_source_open_circuit": {
+                "name": "Light source open circuit"
+            },
+            "light_source_overall_failure": {
+                "name": "Light source failure"
+            },
+            "light_source_short_circuit": {
+                "name": "Light source short circuit"
+            },
+            "light_source_thermal_derating": {
+                "name": "Light source thermal derating"
+            },
+            "light_source_thermal_shutdown": {
+                "name": "Light source thermal shutdown"
             }
         },
         "button": {
@@ -200,6 +233,9 @@
             }
         },
         "sensor": {
+            "active_energy": {
+                "name": "Active energy"
+            },
             "air_quality_index": {
                 "name": "Air quality index"
             },
@@ -208,9 +244,6 @@
             },
             "average_power_during_maintenance": {
                 "name": "Average power during maintenance"
-            },
-            "batch_number": {
-                "name": "Batch number"
             },
             "battery_connected_time_total": {
                 "name": "Battery connected time"
@@ -221,14 +254,44 @@
             "battery_recharge_time": {
                 "name": "Battery recharge time"
             },
+            "cct": {
+                "name": "Correlated color temperature"
+            },
             "co2": {
                 "name": "Carbon dioxide"
+            },
+            "control_gear_external_supply_voltage": {
+                "name": "Control gear supply voltage"
+            },
+            "control_gear_internal_temperature": {
+                "name": "Control gear internal temperature"
             },
             "control_gear_max_reference_temperature": {
                 "name": "Control gear maximum reference temperature"
             },
+            "control_gear_operating_time": {
+                "name": "Control gear operating time"
+            },
+            "control_gear_output_current_percent": {
+                "name": "Control gear output current"
+            },
+            "control_gear_reference_temperature": {
+                "name": "Control gear reference temperature"
+            },
+            "control_gear_start_counter": {
+                "name": "Control gear start counter"
+            },
+            "control_gear_supply_frequency": {
+                "name": "Control gear supply frequency"
+            },
             "control_gear_temperature": {
                 "name": "Control gear temperature"
+            },
+            "cri": {
+                "name": "Color rendering index"
+            },
+            "dali_address": {
+                "name": "DALI address"
             },
             "duration_test_failed_counter_total": {
                 "name": "Duration test failed counter"
@@ -266,6 +329,12 @@
             "illuminance": {
                 "name": "Illuminance"
             },
+            "input_power_minimum_dim": {
+                "name": "Input power at minimum dim level"
+            },
+            "input_power_nominal": {
+                "name": "Nominal input power"
+            },
             "lamp_emergency_time": {
                 "name": "Lamp emergency time"
             },
@@ -277,6 +346,60 @@
             },
             "lamp_total_operation_time": {
                 "name": "Lamp total operation time"
+            },
+            "light_distribution_type": {
+                "name": "Light distribution type",
+                "state": {
+                    "not_specified": "Not specified",
+                    "reserved": "Reserved",
+                    "type_i": "Type I",
+                    "type_ii": "Type II",
+                    "type_iii": "Type III",
+                    "type_iv": "Type IV",
+                    "type_v": "Type V"
+                }
+            },
+            "light_output_nominal": {
+                "name": "Nominal light output"
+            },
+            "light_source_current": {
+                "name": "Light source current"
+            },
+            "light_source_on_time": {
+                "name": "Light source on time"
+            },
+            "light_source_on_time_resettable": {
+                "name": "Light source on time (resettable)"
+            },
+            "light_source_start_counter": {
+                "name": "Light source start counter"
+            },
+            "light_source_start_counter_resettable": {
+                "name": "Light source start counter (resettable)"
+            },
+            "light_source_temperature": {
+                "name": "Light source temperature"
+            },
+            "light_source_voltage": {
+                "name": "Light source voltage"
+            },
+            "luminaire_color": {
+                "name": "Luminaire color"
+            },
+            "luminaire_id": {
+                "name": "Luminaire ID"
+            },
+            "luminaire_identification": {
+                "name": "Luminaire identification"
+            },
+            "mains_voltage_maximum": {
+                "name": "Maximum mains voltage"
+            },
+            "mains_voltage_minimum": {
+                "name": "Minimum mains voltage"
+            },
+            "manufacturer_gtin": {
+                "name": "Luminaire manufacturer GTIN"
             },
             "max_control_gear_temperature_total": {
                 "name": "Maximum control gear temperature"
@@ -292,6 +415,12 @@
             },
             "rated_duration": {
                 "name": "Rated duration"
+            },
+            "rated_median_useful_life": {
+                "name": "Rated median useful life"
+            },
+            "rated_median_useful_light_source_starts": {
+                "name": "Rated median useful light source starts"
             },
             "relative_humidity": {
                 "name": "Humidity"
@@ -313,6 +442,12 @@
             },
             "voc": {
                 "name": "Volatile organic compounds"
+            },
+            "week_of_manufacture": {
+                "name": "Week of manufacture"
+            },
+            "year_of_manufacture": {
+                "name": "Year of manufacture"
             }
         }
     },
@@ -323,11 +458,18 @@
         "communication_error": {
             "message": "Unable to communicate with the DALI gear"
         },
+        "connection_lost": {
+            "message": "The connection to the DALI interface was lost"
+        },
         "update_failed": {
             "message": "Unable to communicate with the DALI interface"
         }
     },
     "issues": {
+        "bus_overload": {
+            "description": "The DALI bus on {title} dropped below the voltage needed to communicate, even though its power supply is switched on. The bus power supply is most likely overloaded or undersized for the connected control gear and sensors. A long or faulty bus cable can have the same effect.\n\nUse a DALI bus power supply with a higher current rating, reduce the number of devices on the bus, or check the bus wiring. Home Assistant keeps retrying and clears this issue once the bus is stable again.",
+            "title": "DALI bus power supply overloaded on {title}"
+        },
         "bus_voltage_error": {
             "fix_flow": {
                 "step": {

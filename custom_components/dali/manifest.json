@@ -1,7 +1,7 @@
 {
   "domain": "dali",
   "name": "Tridonic DALI",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "codeowners": [
     "@markus-becker-tridonic-com"
   ],
@@ -14,7 +14,7 @@
   "iot_class": "local_polling",
   "quality_scale": "gold",
   "requirements": [
-    "python-dali @ git+https://github.com/tridonic-com/python-dali@55e66f53ec11f89ed7a61b65cc4d082218786907",
+    "python-dali @ git+https://github.com/tridonic-com/python-dali@64e7173983b3037d4c724b4bdfbaa3fe3e4430f8",
     "serialx==1.11.0"
   ],
   "usb": [

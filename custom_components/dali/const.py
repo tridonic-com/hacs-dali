@@ -56,6 +56,7 @@ DEVICE_INSTANCE_TYPE_NAMES: dict[int, str] = {
 ISSUE_UNADDRESSED_GEAR = "unaddressed_gear"
 ISSUE_UNADDRESSED_CONTROLDEVICE = "unaddressed_controldevice"
 ISSUE_BUS_VOLTAGE_ERROR = "bus_voltage_error"
+ISSUE_BUS_OVERLOAD = "bus_overload"
 
 # Registry-identifier infixes. Control gear and control devices have
 # independent DALI short-address spaces, so the kind is encoded to keep a
@@ -83,3 +84,8 @@ def unaddressed_control_device_issue_id(entry_id: str) -> str:
 def bus_voltage_error_issue_id(entry_id: str) -> str:
     """Return the repair issue ID for an unpowered DALI bus."""
     return f"{ISSUE_BUS_VOLTAGE_ERROR}_{entry_id}"
+
+
+def bus_overload_issue_id(entry_id: str) -> str:
+    """Return the repair issue ID for an overloaded or undersized bus supply."""
+    return f"{ISSUE_BUS_OVERLOAD}_{entry_id}"

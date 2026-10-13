@@ -18,7 +18,7 @@ from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from . import DaliConfigEntry
 from .const import DEVICE_TYPE_EMERGENCY
-from .coordinator import DaliCoordinator, DaliEmergencyData
+from .coordinator import DaliCoordinator, DaliDiagnosticsData, DaliEmergencyData
 
 PARALLEL_UPDATES = 0
 
@@ -30,11 +30,20 @@ class DaliEmergencyBinarySensorDescription(BinarySensorEntityDescription):
     value_fn: Callable[[DaliEmergencyData], bool | None]
 
 
-def _bit(byte: int | None, mask: int) -> bool | None:
-    """Return whether a status-byte bit is set, or None if the byte is absent."""
-    if byte is None:
-        return None
-    return bool(byte & mask)
+def _status_bit(
+    select: Callable[[DaliEmergencyData], object | None], attr: str
+) -> Callable[[DaliEmergencyData], bool | None]:
+    """Build a value_fn returning one decoded status bit.
+
+    ``select`` picks the decoded status byte off the emergency data; the result
+    is None when the gear did not answer that byte.
+    """
+
+    def value_fn(data: DaliEmergencyData) -> bool | None:
+        byte = select(data)
+        return getattr(byte, attr) if byte is not None else None
+
+    return value_fn
 
 
 EMERGENCY_BINARY_SENSOR_TYPES: tuple[DaliEmergencyBinarySensorDescription, ...] = (
@@ -42,111 +51,213 @@ EMERGENCY_BINARY_SENSOR_TYPES: tuple[DaliEmergencyBinarySensorDescription, ...] 
         key="inhibit_mode",
         translation_key="inhibit_mode",
         entity_category=EntityCategory.DIAGNOSTIC,
-        value_fn=lambda data: _bit(data.status, 0b00000001),
+        value_fn=_status_bit(lambda data: data.status, "inhibit_mode"),
     ),
     DaliEmergencyBinarySensorDescription(
         key="function_test_done",
         translation_key="function_test_done",
         entity_category=EntityCategory.DIAGNOSTIC,
-        value_fn=lambda data: _bit(data.status, 0b00000010),
+        value_fn=_status_bit(
+            lambda data: data.status, "function_test_done_and_result_valid"
+        ),
     ),
     DaliEmergencyBinarySensorDescription(
         key="duration_test_done",
         translation_key="duration_test_done",
         entity_category=EntityCategory.DIAGNOSTIC,
-        value_fn=lambda data: _bit(data.status, 0b00000100),
+        value_fn=_status_bit(
+            lambda data: data.status, "duration_test_done_and_result_valid"
+        ),
     ),
     DaliEmergencyBinarySensorDescription(
         key="battery_fully_charged",
         translation_key="battery_fully_charged",
         entity_category=EntityCategory.DIAGNOSTIC,
-        value_fn=lambda data: _bit(data.status, 0b00001000),
+        value_fn=_status_bit(lambda data: data.status, "battery_fully_charged"),
     ),
     DaliEmergencyBinarySensorDescription(
         key="function_test_pending",
         translation_key="function_test_pending",
         entity_category=EntityCategory.DIAGNOSTIC,
-        value_fn=lambda data: _bit(data.status, 0b00010000),
+        value_fn=_status_bit(lambda data: data.status, "function_test_pending"),
     ),
     DaliEmergencyBinarySensorDescription(
         key="duration_test_pending",
         translation_key="duration_test_pending",
         entity_category=EntityCategory.DIAGNOSTIC,
-        value_fn=lambda data: _bit(data.status, 0b00100000),
+        value_fn=_status_bit(lambda data: data.status, "duration_test_pending"),
     ),
     DaliEmergencyBinarySensorDescription(
         key="identification_active",
         translation_key="identification_active",
         entity_category=EntityCategory.DIAGNOSTIC,
-        value_fn=lambda data: _bit(data.status, 0b01000000),
+        value_fn=_status_bit(lambda data: data.status, "identification_active"),
     ),
     DaliEmergencyBinarySensorDescription(
         key="hardwired_inhibit_active",
         translation_key="hardwired_inhibit_active",
         entity_category=EntityCategory.DIAGNOSTIC,
-        value_fn=lambda data: _bit(data.mode, 0b01000000),
+        value_fn=_status_bit(lambda data: data.mode, "hardwired_inhibit_active"),
     ),
     DaliEmergencyBinarySensorDescription(
         key="hardwired_switch_on",
         translation_key="hardwired_switch_on",
         entity_category=EntityCategory.DIAGNOSTIC,
-        value_fn=lambda data: _bit(data.mode, 0b10000000),
+        value_fn=_status_bit(lambda data: data.mode, "hardwired_switch_on"),
     ),
     DaliEmergencyBinarySensorDescription(
         key="circuit_failure",
         translation_key="circuit_failure",
         device_class=BinarySensorDeviceClass.PROBLEM,
         entity_category=EntityCategory.DIAGNOSTIC,
-        value_fn=lambda data: _bit(data.failure_status, 0b00000001),
+        value_fn=_status_bit(lambda data: data.failure_status, "circuit_failure"),
     ),
     DaliEmergencyBinarySensorDescription(
         key="battery_duration_failure",
         translation_key="battery_duration_failure",
         device_class=BinarySensorDeviceClass.PROBLEM,
         entity_category=EntityCategory.DIAGNOSTIC,
-        value_fn=lambda data: _bit(data.failure_status, 0b00000010),
+        value_fn=_status_bit(
+            lambda data: data.failure_status, "battery_duration_failure"
+        ),
     ),
     DaliEmergencyBinarySensorDescription(
         key="battery_failure",
         translation_key="battery_failure",
         device_class=BinarySensorDeviceClass.PROBLEM,
         entity_category=EntityCategory.DIAGNOSTIC,
-        value_fn=lambda data: _bit(data.failure_status, 0b00000100),
+        value_fn=_status_bit(lambda data: data.failure_status, "battery_failure"),
     ),
     DaliEmergencyBinarySensorDescription(
         key="emergency_lamp_failure",
         translation_key="emergency_lamp_failure",
         device_class=BinarySensorDeviceClass.PROBLEM,
         entity_category=EntityCategory.DIAGNOSTIC,
-        value_fn=lambda data: _bit(data.failure_status, 0b00001000),
+        value_fn=_status_bit(
+            lambda data: data.failure_status, "emergency_lamp_failure"
+        ),
     ),
     DaliEmergencyBinarySensorDescription(
         key="function_test_max_delay_exceeded",
         translation_key="function_test_max_delay_exceeded",
         device_class=BinarySensorDeviceClass.PROBLEM,
         entity_category=EntityCategory.DIAGNOSTIC,
-        value_fn=lambda data: _bit(data.failure_status, 0b00010000),
+        value_fn=_status_bit(
+            lambda data: data.failure_status, "function_test_max_delay_exceeded"
+        ),
     ),
     DaliEmergencyBinarySensorDescription(
         key="duration_test_max_delay_exceeded",
         translation_key="duration_test_max_delay_exceeded",
         device_class=BinarySensorDeviceClass.PROBLEM,
         entity_category=EntityCategory.DIAGNOSTIC,
-        value_fn=lambda data: _bit(data.failure_status, 0b00100000),
+        value_fn=_status_bit(
+            lambda data: data.failure_status, "duration_test_max_delay_exceeded"
+        ),
     ),
     DaliEmergencyBinarySensorDescription(
         key="function_test_failed",
         translation_key="function_test_failed",
         device_class=BinarySensorDeviceClass.PROBLEM,
         entity_category=EntityCategory.DIAGNOSTIC,
-        value_fn=lambda data: _bit(data.failure_status, 0b01000000),
+        value_fn=_status_bit(lambda data: data.failure_status, "function_test_failed"),
     ),
     DaliEmergencyBinarySensorDescription(
         key="duration_test_failed",
         translation_key="duration_test_failed",
         device_class=BinarySensorDeviceClass.PROBLEM,
         entity_category=EntityCategory.DIAGNOSTIC,
-        value_fn=lambda data: _bit(data.failure_status, 0b10000000),
+        value_fn=_status_bit(lambda data: data.failure_status, "duration_test_failed"),
+    ),
+)
+
+
+@dataclass(frozen=True, kw_only=True)
+class DaliGearDiagnosticBinarySensorDescription(BinarySensorEntityDescription):
+    """Description of a memory bank 205 or 206 failure condition."""
+
+    value_fn: Callable[[DaliDiagnosticsData], bool | None]
+
+
+GEAR_DIAGNOSTIC_BINARY_SENSOR_TYPES: tuple[
+    DaliGearDiagnosticBinarySensorDescription, ...
+] = (
+    DaliGearDiagnosticBinarySensorDescription(
+        key="control_gear_overall_failure",
+        translation_key="control_gear_overall_failure",
+        device_class=BinarySensorDeviceClass.PROBLEM,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        value_fn=lambda data: data.control_gear_overall_failure,
+    ),
+    DaliGearDiagnosticBinarySensorDescription(
+        key="control_gear_undervoltage",
+        translation_key="control_gear_undervoltage",
+        device_class=BinarySensorDeviceClass.PROBLEM,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        value_fn=lambda data: data.control_gear_undervoltage,
+    ),
+    DaliGearDiagnosticBinarySensorDescription(
+        key="control_gear_overvoltage",
+        translation_key="control_gear_overvoltage",
+        device_class=BinarySensorDeviceClass.PROBLEM,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        value_fn=lambda data: data.control_gear_overvoltage,
+    ),
+    DaliGearDiagnosticBinarySensorDescription(
+        key="control_gear_output_power_limitation",
+        translation_key="control_gear_output_power_limitation",
+        device_class=BinarySensorDeviceClass.PROBLEM,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        value_fn=lambda data: data.control_gear_output_power_limitation,
+    ),
+    DaliGearDiagnosticBinarySensorDescription(
+        key="control_gear_thermal_derating",
+        translation_key="control_gear_thermal_derating",
+        device_class=BinarySensorDeviceClass.PROBLEM,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        value_fn=lambda data: data.control_gear_thermal_derating,
+    ),
+    DaliGearDiagnosticBinarySensorDescription(
+        key="control_gear_thermal_shutdown",
+        translation_key="control_gear_thermal_shutdown",
+        device_class=BinarySensorDeviceClass.PROBLEM,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        value_fn=lambda data: data.control_gear_thermal_shutdown,
+    ),
+    DaliGearDiagnosticBinarySensorDescription(
+        key="light_source_overall_failure",
+        translation_key="light_source_overall_failure",
+        device_class=BinarySensorDeviceClass.PROBLEM,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        value_fn=lambda data: data.light_source_overall_failure,
+    ),
+    DaliGearDiagnosticBinarySensorDescription(
+        key="light_source_short_circuit",
+        translation_key="light_source_short_circuit",
+        device_class=BinarySensorDeviceClass.PROBLEM,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        value_fn=lambda data: data.light_source_short_circuit,
+    ),
+    DaliGearDiagnosticBinarySensorDescription(
+        key="light_source_open_circuit",
+        translation_key="light_source_open_circuit",
+        device_class=BinarySensorDeviceClass.PROBLEM,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        value_fn=lambda data: data.light_source_open_circuit,
+    ),
+    DaliGearDiagnosticBinarySensorDescription(
+        key="light_source_thermal_derating",
+        translation_key="light_source_thermal_derating",
+        device_class=BinarySensorDeviceClass.PROBLEM,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        value_fn=lambda data: data.light_source_thermal_derating,
+    ),
+    DaliGearDiagnosticBinarySensorDescription(
+        key="light_source_thermal_shutdown",
+        translation_key="light_source_thermal_shutdown",
+        device_class=BinarySensorDeviceClass.PROBLEM,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        value_fn=lambda data: data.light_source_thermal_shutdown,
     ),
 )
 
@@ -186,6 +297,28 @@ async def async_setup_entry(
     async_add_emergency_binary_sensors()
     entry.async_on_unload(
         coordinator.async_add_listener(async_add_emergency_binary_sensors)
+    )
+
+    known_diagnostics: set[int] = set()
+
+    @callback
+    def async_add_gear_diagnostic_binary_sensors() -> None:
+        entities: list[BinarySensorEntity] = []
+        for address, gear in coordinator.data.items():
+            if gear.diagnostics is None or address in known_diagnostics:
+                continue
+            known_diagnostics.add(address)
+            entities.extend(
+                DaliGearDiagnosticBinarySensor(
+                    coordinator, entry.entry_id, entry.title, address, description
+                )
+                for description in GEAR_DIAGNOSTIC_BINARY_SENSOR_TYPES
+            )
+        async_add_entities(entities)
+
+    async_add_gear_diagnostic_binary_sensors()
+    entry.async_on_unload(
+        coordinator.async_add_listener(async_add_gear_diagnostic_binary_sensors)
     )
 
 
@@ -276,3 +409,47 @@ class DaliEmergencyBinarySensor(CoordinatorEntity[DaliCoordinator], BinarySensor
         if gear is None or gear.emergency is None:
             return None
         return self.entity_description.value_fn(gear.emergency)
+
+
+class DaliGearDiagnosticBinarySensor(
+    CoordinatorEntity[DaliCoordinator], BinarySensorEntity
+):
+    """Representation of one memory bank 205 or 206 failure condition.
+
+    The gear latches each condition until it clears, so these report what the
+    gear last observed rather than what the last read happened to catch.
+    """
+
+    _attr_has_entity_name = True
+    entity_description: DaliGearDiagnosticBinarySensorDescription
+
+    def __init__(
+        self,
+        coordinator: DaliCoordinator,
+        entry_id: str,
+        title: str,
+        address: int,
+        description: DaliGearDiagnosticBinarySensorDescription,
+    ) -> None:
+        """Initialize the entity."""
+        super().__init__(coordinator)
+        self.entity_description = description
+        self._address = address
+        self._attr_unique_id = f"{entry_id}_{address}_{description.key}"
+        self._attr_device_info = coordinator.device_info(entry_id, title, address)
+
+    @property
+    @override
+    def available(self) -> bool:
+        """Return whether the diagnostics memory banks have been read."""
+        gear = self.coordinator.data.get(self._address)
+        return super().available and gear is not None and gear.diagnostics is not None
+
+    @property
+    @override
+    def is_on(self) -> bool | None:
+        """Return whether the described failure condition is present."""
+        gear = self.coordinator.data.get(self._address)
+        if gear is None or gear.diagnostics is None:
+            return None
+        return self.entity_description.value_fn(gear.diagnostics)
