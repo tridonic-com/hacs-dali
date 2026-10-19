@@ -7,7 +7,7 @@ from datetime import timedelta
 from decimal import Decimal
 import logging
 import math
-from typing import Any, override
+from typing import TYPE_CHECKING, Any, override
 
 from dali.address import (
     DeviceBroadcast,
@@ -46,6 +46,7 @@ from dali.gear.colour import (
     QueryColourValueDTR,
 )
 from dali.gear.general import (
+    DTR0 as GearDTR0,
     QueryActualLevel,
     QueryControlGearPresent,
     QueryExtendedFadeTime,
@@ -54,15 +55,16 @@ from dali.gear.general import (
     QueryMinLevel,
     QueryMissingShortAddress,
     QuerySystemFailureLevel,
+    SetShortAddress,
 )
 from dali.gear.led import QueryDimmingCurve
 from dali.gear.sequences import (
-    EmergencyFailureStatus,
-    EmergencyFeatures,
-    EmergencyMode,
-    EmergencyStatus,
     QueryDT8ColourValue,
+    QueryEmergencyFailureStatusResponse,
+    QueryEmergencyFeaturesResponse,
     QueryEmergencyInformation,
+    QueryEmergencyModeResponse,
+    QueryEmergencyStatusResponse,
 )
 from dali.memory import (
     diagnostics as diagnostics_memory,
@@ -91,11 +93,13 @@ from .const import (
     DEVICE_TYPE_LED,
     DOMAIN,
     GEAR_DEVICE_TYPE_NAMES,
+    ISSUE_ADDRESS_COLLISION,
     ISSUE_BUS_OVERLOAD,
     ISSUE_BUS_VOLTAGE_ERROR,
     ISSUE_UNADDRESSED_CONTROLDEVICE,
     ISSUE_UNADDRESSED_GEAR,
     SUPPORTED_GEAR_DEVICE_TYPES,
+    address_collision_issue_id,
     bus_overload_issue_id,
     bus_voltage_error_issue_id,
     registry_identifier,
@@ -103,6 +107,9 @@ from .const import (
     unaddressed_gear_issue_id,
 )
 from .helpers import MASK_LEVEL
+
+if TYPE_CHECKING:
+    from . import DaliConfigEntry
 
 # LUBA "ADD DALI FRAME TO TX BUFFER" reason code for an unpowered bus.
 _BUS_VOLTAGE_ERROR_CODE = DriverLubaRs232.LubaTxError.BUS_VOLTAGE_ERROR.value
@@ -134,6 +141,12 @@ TRIDONIC_GTIN_PREFIX = "9006210"
 METADATA_QUERY_ATTEMPTS = 3
 # Widest input-value resolution IEC 62386-306 defines, in bits.
 MAX_SENSOR_RESOLUTION = 32
+# A yes/no query is the reliable collision probe: IEC 62386 defines that two or
+# more gear answering "yes" at once garble the backward frame into a framing
+# error, whatever their data. A data query (e.g. the random address) would not,
+# because two gear sharing a value answer identical, aligned frames -- and
+# freshly added gear share the default random address until commissioned.
+_COLLISION_PROBES = (QueryControlGearPresent,)
 
 
 def raise_bus_voltage_issue(
@@ -283,10 +296,10 @@ class DaliEmergencyData:
     memory-bank-208 diagnostics.
     """
 
-    mode: EmergencyMode | None = None
-    features: EmergencyFeatures | None = None
-    failure_status: EmergencyFailureStatus | None = None
-    status: EmergencyStatus | None = None
+    mode: QueryEmergencyModeResponse | None = None
+    features: QueryEmergencyFeaturesResponse | None = None
+    failure_status: QueryEmergencyFailureStatusResponse | None = None
+    status: QueryEmergencyStatusResponse | None = None
     battery_charge: int | None = None
     emergency_level: int | None = None
     duration_test_result: int | None = None
@@ -404,13 +417,13 @@ class DaliMetadataStore(Store[dict[str, Any]]):
 class DaliCoordinator(DataUpdateCoordinator[dict[int, DaliGearData]]):
     """Coordinate DALI gear discovery and state updates."""
 
-    config_entry: ConfigEntry
+    config_entry: DaliConfigEntry
 
     def __init__(
         self,
         hass: HomeAssistant,
         driver: DriverLubaRs232,
-        config_entry: ConfigEntry,
+        config_entry: DaliConfigEntry,
     ) -> None:
         """Initialize the coordinator."""
         super().__init__(
@@ -639,6 +652,11 @@ class DaliCoordinator(DataUpdateCoordinator[dict[int, DaliGearData]]):
         try:
             present = await self.driver.send(QueryControlGearPresent(gear_address))
             if present is None or not present.value:
+                return None
+            # A framing error means several gear answered at once: the address
+            # collides and cannot be queried individually, so treat the gear as
+            # unavailable and leave the collision to the dedicated repair.
+            if present.raw_value is not None and present.raw_value.error:
                 return None
             device_types = tuple(
                 device_type
@@ -1450,6 +1468,7 @@ class DaliCoordinator(DataUpdateCoordinator[dict[int, DaliGearData]]):
         self._update_unaddressed_control_device_issue(
             await self._has_unaddressed_control_devices()
         )
+        self._update_address_collision_issue(await self._detect_address_collisions())
         self._initial_refresh = False
         return data
 
@@ -1543,6 +1562,132 @@ class DaliCoordinator(DataUpdateCoordinator[dict[int, DaliGearData]]):
             translation_key=ISSUE_UNADDRESSED_CONTROLDEVICE,
             translation_placeholders={"title": self.config_entry.title},
         )
+
+    async def _gear_present(self, address: int) -> bool:
+        """Return whether a single gear answers on a short address."""
+        response = await self.driver.send(QueryControlGearPresent(GearShort(address)))
+        return response is not None and bool(response.value)
+
+    async def _probe_collides(self, gear_address: GearShort) -> bool | None:
+        """Probe a short address once for a collision framing error.
+
+        Returns True on a framing error (several gear answered over each other),
+        False when one gear answered cleanly, and None when no gear answered at
+        all. An empty address answers nothing, so the first silent probe ends it
+        to keep the full-bus scan from waiting out timeouts per vacant address.
+        """
+        answered = False
+        for probe in _COLLISION_PROBES:
+            try:
+                response = await self.driver.send(probe(gear_address))
+            except (OSError, TimeoutError) as err:
+                raise UpdateFailed(
+                    translation_domain=DOMAIN,
+                    translation_key="update_failed",
+                ) from err
+            if response is None or response.raw_value is None:
+                if not answered:
+                    return None
+                continue
+            answered = True
+            if response.raw_value.error:
+                return True
+        return False if answered else None
+
+    async def _short_address_collides(self, address: int) -> bool:
+        """Return whether more than one gear answers on a short address.
+
+        A lone gear can glitch a single frame, so the collision must reproduce
+        across two probe rounds; an empty or singly-occupied address never does.
+        """
+        gear_address = GearShort(address)
+        for _ in range(2):
+            if await self._probe_collides(gear_address) is not True:
+                return False
+        return True
+
+    async def _detect_address_collisions(self) -> list[int]:
+        """Return the gear short addresses answered by more than one device."""
+        return [
+            address
+            for address in range(64)
+            if await self._short_address_collides(address)
+        ]
+
+    def _update_address_collision_issue(self, collisions: list[int]) -> None:
+        """Create or remove the repair issue for short-address collisions."""
+        issue_id = address_collision_issue_id(self.config_entry.entry_id)
+        if not collisions:
+            ir.async_delete_issue(self.hass, DOMAIN, issue_id)
+            return
+        ir.async_create_issue(
+            self.hass,
+            DOMAIN,
+            issue_id,
+            data={"entry_id": self.config_entry.entry_id},
+            is_fixable=True,
+            severity=ir.IssueSeverity.WARNING,
+            translation_key=ISSUE_ADDRESS_COLLISION,
+            translation_placeholders={
+                "title": self.config_entry.title,
+                "addresses": ", ".join(str(address) for address in collisions),
+            },
+        )
+
+    async def _find_gear_by_serial(
+        self, serial: int, *, exclude: set[int]
+    ) -> int | None:
+        """Return the short address of the gear with a given serial number."""
+        for address in range(64):
+            if address in exclude or not await self._gear_present(address):
+                continue
+            metadata = await self._query_metadata(GearShort(address))
+            if metadata.identification_number == serial:
+                return address
+        return None
+
+    async def _resolve_address_collision(self, address: int) -> None:
+        """Re-address the gear colliding on a single short address.
+
+        The shared address is cleared on every gear that holds it (they all
+        answer it), the freed gear are re-addressed into other free addresses,
+        and the gear whose identity was recorded at the old address is moved
+        back onto it so automations keep targeting the same fixture. Without a
+        recorded identity the address is left to whichever gear took it.
+        """
+        wanted = self._metadata.get(address)
+        wanted_serial = wanted.identification_number if wanted else None
+        occupied = {
+            other
+            for other in range(64)
+            if other != address and await self._gear_present(other)
+        }
+        await self.driver.send(GearDTR0(255))
+        await self.driver.send(SetShortAddress(GearShort(address)))
+        # Keep the old address reserved so the recorded fixture can reclaim it.
+        available = [a for a in range(64) if a not in occupied and a != address]
+        await self.driver.send(
+            Commissioning(available_addresses=available, readdress=False),
+            progress=_log_commissioning_progress,
+        )
+        if wanted_serial is None:
+            return
+        new_address = await self._find_gear_by_serial(wanted_serial, exclude=occupied)
+        if new_address is None or new_address == address:
+            return
+        await self.driver.send(GearDTR0((address << 1) | 1))
+        await self.driver.send(SetShortAddress(GearShort(new_address)))
+
+    async def async_resolve_address_collisions(self) -> bool:
+        """Resolve short-address collisions and return whether any remain."""
+        for address in await self._detect_address_collisions():
+            await self._resolve_address_collision(address)
+        # Force a full bus scan so the re-addressed gear is discovered at once.
+        self._last_full_scan = None
+        await self.async_refresh()
+        remaining = await self._detect_address_collisions()
+        self._update_address_collision_issue(remaining)
+        return bool(remaining)
 
     async def async_assign_gear_short_addresses(self) -> bool:
         """Address unaddressed control gear and return whether any remain unaddressed."""

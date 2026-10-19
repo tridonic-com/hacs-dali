@@ -57,6 +57,7 @@ ISSUE_UNADDRESSED_GEAR = "unaddressed_gear"
 ISSUE_UNADDRESSED_CONTROLDEVICE = "unaddressed_controldevice"
 ISSUE_BUS_VOLTAGE_ERROR = "bus_voltage_error"
 ISSUE_BUS_OVERLOAD = "bus_overload"
+ISSUE_ADDRESS_COLLISION = "address_collision"
 
 # Registry-identifier infixes. Control gear and control devices have
 # independent DALI short-address spaces, so the kind is encoded to keep a
@@ -89,3 +90,8 @@ def bus_voltage_error_issue_id(entry_id: str) -> str:
 def bus_overload_issue_id(entry_id: str) -> str:
     """Return the repair issue ID for an overloaded or undersized bus supply."""
     return f"{ISSUE_BUS_OVERLOAD}_{entry_id}"
+
+
+def address_collision_issue_id(entry_id: str) -> str:
+    """Return the repair issue ID for a DALI short-address collision."""
+    return f"{ISSUE_ADDRESS_COLLISION}_{entry_id}"

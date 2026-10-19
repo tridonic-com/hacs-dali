@@ -77,4 +77,8 @@ rules:
   inject-websession:
     status: exempt
     comment: This integration does not make HTTP requests.
-  strict-typing: done
+  strict-typing:
+    status: todo
+    comment: >-
+      The integration's own code is strictly typed, but the python-dali
+      dependency does not yet ship a py.typed marker (PEP 561).

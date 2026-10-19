@@ -11,12 +11,11 @@ Tridonic/Lunatone DALI-USB dongle (USB `17B5:0201`).
 
 ## Requirements
 
-- A running Home Assistant instance (OS, Container, or Supervised recommended;
-  these ship `git`, which is needed to install the `python-dali` dependency).
+- A running Home Assistant instance (OS, Container, or Supervised recommended).
 - [HACS](https://hacs.xyz) installed and linked to a GitHub account that has been
   **granted read access to this private repository**.
-- Network access on the Home Assistant host (first setup clones `python-dali`
-  from GitHub via pip).
+- Network access on the Home Assistant host (first setup installs `python-dali`
+  from PyPI via pip).
 
 ## Install
 
@@ -30,9 +29,9 @@ Tridonic/Lunatone DALI-USB dongle (USB `17B5:0201`).
 5. Plug in the DALI-USB dongle. Go to **Settings → Devices & Services → Add
    Integration → Tridonic DALI** and follow the config flow.
 
-On first setup Home Assistant installs the `python-dali` dependency from the
-[Tridonic fork](https://github.com/tridonic-com/python-dali/tree/to-upstream)
-via pip; this can take a minute and requires network access.
+On first setup Home Assistant installs the released
+[`python-dali`](https://pypi.org/project/python-dali/) dependency from PyPI via
+pip; this can take a minute and requires network access.
 
 ## Updating
 
@@ -46,12 +45,14 @@ The integration under `custom_components/dali/` is a generated copy of
 not edit it by hand — change it in core, then re-sync:
 
 ```bash
-python scripts/sync.py                 # uses ../core and the pinned python-dali ref
+python scripts/sync.py                 # uses ../core, keeps the current version
 python scripts/sync.py --version 0.2.0 # bump the integration version
 ```
 
-The sync makes exactly two changes to the manifest versus core: it adds a
-`version` field (required for custom integrations) and replaces the
-`python-dali==0.12` PyPI pin with a git-URL requirement pointing at the fork.
-After syncing, commit, tag with the matching version, and push to the GitHub
-remote so HACS picks up the release.
+The sync makes exactly one change to the manifest versus core: it adds a
+`version` field (required for custom integrations). The `python-dali==0.14`
+PyPI pin is copied verbatim now that the release is published. Translations
+(`translations/en.json`) are generated in the core checkout
+(`python3 -m script.translations develop --integration dali`) before syncing,
+since core does not commit them. After syncing, commit, tag with the matching
+version, and push to the GitHub remote so HACS picks up the release.

@@ -236,9 +236,6 @@
       "active_energy": {
         "name": "Active energy"
       },
-      "air_quality_index": {
-        "name": "[%key:component::sensor::entity_component::aqi::name%]"
-      },
       "average_power_during_charging": {
         "name": "Average power during charging"
       },
@@ -256,9 +253,6 @@
       },
       "cct": {
         "name": "Correlated color temperature"
-      },
-      "co2": {
-        "name": "[%key:component::sensor::entity_component::carbon_dioxide::name%]"
       },
       "control_gear_external_supply_voltage": {
         "name": "Control gear supply voltage"
@@ -410,9 +404,6 @@
       "part306_sensor": {
         "name": "Measurement"
       },
-      "pressure": {
-        "name": "[%key:component::sensor::entity_component::atmospheric_pressure::name%]"
-      },
       "rated_duration": {
         "name": "Rated duration"
       },
@@ -422,23 +413,14 @@
       "rated_median_useful_light_source_starts": {
         "name": "Rated median useful light source starts"
       },
-      "relative_humidity": {
-        "name": "[%key:component::sensor::entity_component::humidity::name%]"
-      },
       "rest_mode_counter": {
         "name": "Rest mode counter"
-      },
-      "sound_pressure": {
-        "name": "[%key:component::sensor::entity_component::sound_pressure::name%]"
       },
       "start_duration_test_counter_total": {
         "name": "Duration test start counter"
       },
       "start_function_test_counter": {
         "name": "Function test start counter"
-      },
-      "temperature": {
-        "name": "[%key:component::sensor::entity_component::temperature::name%]"
       },
       "voc": {
         "name": "Volatile organic compounds"
@@ -466,6 +448,27 @@
     }
   },
   "issues": {
+    "address_collision": {
+      "fix_flow": {
+        "abort": {
+          "cannot_connect": "[%key:common::config_flow::error::cannot_connect%]",
+          "collision_remaining": "Some control gear still shares a short address. Check the DALI bus wiring and power, then try again.",
+          "not_loaded": "[%key:component::dali::issues::unaddressed_gear::fix_flow::abort::not_loaded%]",
+          "program_failed": "[%key:component::dali::issues::unaddressed_gear::fix_flow::abort::program_failed%]"
+        },
+        "progress": {
+          "resolve": "Clearing the shared short address and re-addressing the affected control gear. This can take a few minutes, depending on how many devices are connected."
+        },
+        "step": {
+          "confirm": {
+            "description": "Two or more pieces of DALI control gear on {title} share short addresses {addresses}. Home Assistant cannot control them individually, and commands meant for one reach all of them.\n\nSelect **Re-address gear** to clear the shared address and assign free short addresses to the affected gear. The fixture Home Assistant already knew at each address keeps that address, so your automations keep working; the newly added, conflicting fixture gets a free address and appears as a new device.\n\nWhen Home Assistant never saw a single device at an address before the collision, it cannot tell which fixture should keep it, so the addresses are assigned arbitrarily and automations targeting that address may now control a different fixture.\n\nIf another DALI controller manages this bus, resolve the collision with that controller instead to avoid conflicts.",
+            "submit": "Re-address gear",
+            "title": "Resolve DALI short-address collision"
+          }
+        }
+      },
+      "title": "DALI control gear sharing a short address on {title}"
+    },
     "bus_overload": {
       "description": "The DALI bus on {title} dropped below the voltage needed to communicate, even though its power supply is switched on. The bus power supply is most likely overloaded or undersized for the connected control gear and sensors. A long or faulty bus cable can have the same effect.\n\nUse a DALI bus power supply with a higher current rating, reduce the number of devices on the bus, or check the bus wiring. Home Assistant keeps retrying and clears this issue once the bus is stable again.",
       "title": "DALI bus power supply overloaded on {title}"
