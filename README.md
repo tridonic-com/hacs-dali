@@ -4,7 +4,7 @@
 
 Pre-release distribution of the **Tridonic DALI** Home Assistant integration for
 early testers, before it is available in Home Assistant core. It supports the
-Tridonic/Lunatone DALI-USB dongle (USB `17B5:0201`).
+Lunatone DALI2-USB dongle (USB `17B5:0201`).
 
 > This is a temporary channel. Once the integration ships in Home Assistant core,
 > install it from there and remove this custom repository.
@@ -12,23 +12,19 @@ Tridonic/Lunatone DALI-USB dongle (USB `17B5:0201`).
 ## Requirements
 
 - A running Home Assistant instance (OS, Container, or Supervised recommended).
-- [HACS](https://hacs.xyz) installed and linked to a GitHub account that has been
-  **granted read access to this private repository**.
+- [HACS](https://hacs.xyz) installed.
 - Network access on the Home Assistant host (first setup installs `python-dali`
   from PyPI via pip).
 
 ## Install
 
-1. Ask the maintainer to grant your GitHub account read access to this repo, and
-   make sure HACS on your instance is logged in as that account
-   (HACS → three-dot menu → *Reload* after access is granted).
-2. Add the repository to HACS, either with the button below or manually via
+1. Add the repository to HACS, either with the button below or manually via
    **HACS → Integrations → three-dot menu → Custom repositories** (add this
    repository's URL with category **Integration**):
 
    [![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=tridonic-com&repository=hacs-dali&category=integration)
-3. Find **Tridonic DALI** in HACS, install it, then **restart Home Assistant**.
-4. Plug in the DALI-USB dongle. Go to **Settings → Devices & Services → Add
+2. Find **Tridonic DALI** in HACS, install it, then **restart Home Assistant**.
+3. Plug in the DALI-USB dongle. Go to **Settings → Devices & Services → Add
    Integration → Tridonic DALI** and follow the config flow.
 
 On first setup Home Assistant installs the released
