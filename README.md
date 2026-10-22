@@ -48,7 +48,7 @@ python scripts/sync.py --version 0.2.0 # bump the integration version
 ```
 
 The sync makes exactly one change to the manifest versus core: it adds a
-`version` field (required for custom integrations). The `python-dali==0.14`
+`version` field (required for custom integrations). The `python-dali==0.16`
 PyPI pin is copied verbatim now that the release is published. Translations
 (`translations/en.json`) are generated in the core checkout
 (`python3 -m script.translations develop --integration dali`) before syncing,

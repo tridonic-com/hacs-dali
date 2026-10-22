@@ -7,7 +7,7 @@ HACS custom integration needs that a core integration must not have: a
 ``version`` field (required for custom integrations).
 
 The ``python-dali`` requirement is copied verbatim; the needed releases
-(``python-dali==0.14``) are now published on PyPI, so no git-URL swap is
+(``python-dali==0.16``) are now published on PyPI, so no git-URL swap is
 required. Everything else is copied verbatim. Re-run after any change in core.
 """
 
